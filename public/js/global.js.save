@@ -1,0 +1,70 @@
+ /*
+  ---------------------------------------------
+ Валидация формы
+  ---------------------------------------------
+   */
+  function sendurl() {
+    var email, form, message;
+    form = $('#subscribe-form');
+    message = $('.subscribe-form-info');
+    email = $('#subscribe-form-email');
+    statusload=$('.status');
+    imgload=$('.gifimg');
+    btn_load=$('.btn_load');
+    /*message.html('<p class="bg-success"><i class="mdi mdi-checkbox-marked-circle-outline"></i> ЗАЛУПА</p>')
+      output = '<p class="bg-success"><i class="mdi mdi-checkbox-marked-circle-outline"></i> ' + data.text + '</p>';
+      output = '<p class="bg-danger"><i class="mdi mdi-close-circle-outline"></i> ' + data.text + '</p>';
+      output = '<p class="bg-load"><i class="mdi mdi-information-outline"></i> ' + data.text + '</p>';
+    */
+     isUrlValid(email.val());
+function isUrlValid(userInput) {
+    var res = userInput.match(/(http[s]?:\/\/)?([-\w\d]+)(\.[-\w\d]+)*(\.([a-zA-Z]{2,5}|[\d]{1,3})){1,2}(\/([-~%\.\(\)\w\d]*\/*)*(#[-\w\d]+)*?)/g);
+    if(res == null){
+         email.parent().addClass('has-error');
+    }else{
+        email.parent().removeClass('has-error');
+        $("#subscribe-form").hide(500);
+        $(".greeting-subheader").hide(500);
+        $(".greeting-message").text("Сейчас ваша ссылка обрабытвается.Обработка сайта может занять от 1 до 5 минут в зависимости от структуры скачиваемого сайта.")
+        $(".gifload").show(500);
+        statusload.html('<p class="bg-load"><i class="mdi mdi-information-outline"></i>ОБРАБОТКА');
+        $. ajax({
+            url: '/create',
+            type: 'POST' ,
+            async: true,
+            timeout: 500000,
+            dataType:   'json',
+            data: {url:userInput},
+            success: function(data){
+            if(data.success){
+                //console.log('eboy');
+                statusload.html('<p class="bg-success"><i class="mdi mdi-checkbox-marked-circle-outline"></i>УСПЕШНО');
+                console.log(data.url);
+                $(".gifimg").hide(500);
+                btn_load.html('<a href="'+data.url+'"><button type="button" name="submit" id="subscribe-form-submit">СКАЧАТЬ</a>');
+                $(".greeting-message").text("Архив с копией сайта готов.Нажмите кнопку скачать.")
+           // $container.html('<h2>Спасибо!</h2>' );
+            } else {
+             statusload.html('<p class="bg-danger"><i class="mdi mdi-close-circle-outline"></i>'+data.error+'</p>');
+		$(".gifimg").hide(500);          
+ // $container.html('Возникла проблема.' );
+            }
+            },
+            error: function(x,t,m){
+               if(t==="timeout"){
+                     alert("Время на обработку истекло.Перезапустите страницу");
+             }else{
+                       statusload.html('<p class="bg-danger"><i class="mdi mdi-close-circle-outline"></i>ПРОИЗОШЛА ВНУТРЕННАЯ ОШИБКА</p>');
+                            $(".gifimg").hide(500);
+
+                    //                      alert("В ходе оработки возникла ошибка.Перезапустите страницу");
+               }
+           // $container.html('Возникла проблема.' );
+            }
+            });
+           
+        }
+
+      }
+
+  };
